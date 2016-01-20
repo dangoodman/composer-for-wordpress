@@ -1,5 +1,5 @@
 <?php
-namespace Dangoodman\ComposerForWordpress;
+namespace Dangoodman\ComposerForWordPress;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
@@ -9,7 +9,7 @@ use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 
 
-class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
+class ComposerForWordPress implements PluginInterface, EventSubscriberInterface
 {
     public function activate(Composer $composer, IOInterface $io)
     {
