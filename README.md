@@ -16,7 +16,7 @@ The plugin patches Composer's autoload scripts every time they are changed due t
 Just require the package in your project's `composer.json`:
 ```json
 "require-dev": {
-    "dangoodman/composer-for-wordpress": "~1.0.0"
+    "dangoodman/composer-for-wordpress": "^1.0.0"
 }
 ```
 
