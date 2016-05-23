@@ -30,6 +30,7 @@ class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
 
         $classLoader = "{$composerAutoloadDir}/ClassLoader.php";
         $autoloadReal = "{$composerAutoloadDir}/autoload_real.php";
+        $autoloadStatic = "{$composerAutoloadDir}/autoload_static.php";
 
         if (strpos(file_get_contents($classLoader), 'PSR-4') === false) {
             throw new \RuntimeException("
@@ -41,19 +42,23 @@ class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
         }
 
         self::replaceInFiles(
-            array($autoloadReal, $classLoader),
-            array(
-                'Composer\\Autoload;' => 'Composer\\AutoloadPsr4;',
-                'Composer\\Autoload\\' => 'Composer\\AutoloadPsr4\\',
-            )
+            array($classLoader, $autoloadReal),
+            '/Composer\\\\Autoload(;|\\\\(?!ComposerStaticInit))/',
+            'Composer\\AutoloadPsr4$1'
+        );
+
+        self::replaceInFiles(
+            array($autoloadStatic),
+            '/'.preg_quote("\nnamespace Composer\\Autoload;\n", '/').'/',
+            "$0\nuse Composer\\AutoloadPsr4\\ClassLoader;\n\n"
         );
     }
 
-    private static function replaceInFiles(array $files, array $replacements)
+    private static function replaceInFiles(array $files, $search, $replace)
     {
         foreach ($files as $file) {
             $contents = file_get_contents($file);
-            $contents = strtr($contents, $replacements);
+            $contents = preg_replace($search, $replace, $contents);
             file_put_contents($file, $contents);
         }
     }
