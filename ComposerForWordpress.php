@@ -49,16 +49,24 @@ class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
 
         self::replaceInFiles(
             array($autoloadStatic),
-            '/'.preg_quote("\nnamespace Composer\\Autoload;\n", '/').'/',
-            "$0\nuse Composer\\AutoloadPsr4\\ClassLoader;\n\n"
+            array(
+                '/\bClassLoader\b/'
+                    => "ClassLoaderPsr4",
+                '/'.preg_quote("\nnamespace Composer\\Autoload;\n", '/').'/'
+                    => "$0\nuse Composer\\AutoloadPsr4\\ClassLoader as ClassLoaderPsr4;\n\n",
+            )
         );
     }
 
-    private static function replaceInFiles(array $files, $search, $replace)
+    private static function replaceInFiles(array $files, $search, $replace = null)
     {
+        if (func_num_args() == 3) {
+            $search = array($search => $replace);
+        }
+
         foreach ($files as $file) {
             $contents = file_get_contents($file);
-            $contents = preg_replace($search, $replace, $contents);
+            $contents = preg_replace(array_keys($search), array_values($search), $contents);
             file_put_contents($file, $contents);
         }
     }
