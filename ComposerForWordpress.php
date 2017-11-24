@@ -26,34 +26,28 @@ class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
 
     public function onPostAutoloadDump(Event $event)
     {
-        $composerAutoloadDir = "{$event->getComposer()->getConfig()->get('vendor-dir')}/composer";
+        $composerConfig = $event->getComposer()->getConfig();
+        $composerAutoloadDir = "{$composerConfig->get('vendor-dir')}/composer";
 
         $classLoader = "{$composerAutoloadDir}/ClassLoader.php";
         $autoloadReal = "{$composerAutoloadDir}/autoload_real.php";
         $autoloadStatic = "{$composerAutoloadDir}/autoload_static.php";
 
-        if (strpos(file_get_contents($classLoader), 'PSR-4') === false) {
-            throw new \RuntimeException("
-                Current composer autoload version does not seem to support PSR-4
-                while 'Composer for Wordpress' composer plugin is supposed to work
-                with PSR-4-compliant composer versions only. Disable the plugin if
-                you don't need it."
-            );
-        }
+        $suffix = $composerConfig->get('classloader-suffix') ?: md5(uniqid('', true));
 
         self::replaceInFiles(
             array($classLoader, $autoloadReal),
             '/Composer\\\\Autoload(;|\\\\(?!ComposerStaticInit))/',
-            'Composer\\AutoloadPsr4$1'
+            "Composer\\Autoload{$suffix}\$1"
         );
 
         self::replaceInFiles(
             array($autoloadStatic),
             array(
                 '/\bClassLoader\b/'
-                    => "ClassLoaderPsr4",
+                    => "ClassLoader{$suffix}",
                 '/'.preg_quote("\nnamespace Composer\\Autoload;\n", '/').'/'
-                    => "$0\nuse Composer\\AutoloadPsr4\\ClassLoader as ClassLoaderPsr4;\n\n",
+                    => "$0\nuse Composer\\Autoload{$suffix}\\ClassLoader as ClassLoader{$suffix};\n\n",
             )
         );
     }
