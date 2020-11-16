@@ -1,6 +1,7 @@
 {
     "name": "dangoodman/composer-for-wordpress",
     "type": "composer-plugin",
+    "license": "MIT",
     "extra": {
         "class": "Dangoodman\\ComposerForWordpress\\ComposerForWordpress"
     },
