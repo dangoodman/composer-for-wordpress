@@ -35,6 +35,11 @@ class ComposerForWordpress implements PluginInterface, EventSubscriberInterface
     public function onPostAutoloadDump(Event $event)
     {
         $composerConfig = $event->getComposer()->getConfig();
+        
+        if ($composerConfig->get('disable-classloader-suffix')) {
+            return;
+        }
+        
         $composerAutoloadDir = "{$composerConfig->get('vendor-dir')}/composer";
 
         $classLoader = "{$composerAutoloadDir}/ClassLoader.php";
